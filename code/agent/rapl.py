@@ -84,10 +84,8 @@ def read_msr(msr, skt=None):
     # 下面确定cpu得值，三选一
     if (skt is None):
         cpu = 0
-        cpu = cpu + 10
     else:
         cpu = cpu_core.get(skt, 0)
-        cpu = cpu + 10
     try:
         f = os.open('/dev/cpu/%d/msr' % (cpu,), os.O_RDONLY)
     except:
@@ -112,10 +110,8 @@ def write_msr(msr, val, skt=None):
     # 下面确定cpu得值，三选一
     if (skt is None):
         cpu = 0
-        cpu = cpu + 10
     else:
         cpu = cpu_core.get(skt, 0)
-        cpu = cpu + 10
     try:
         f = os.open('/dev/cpu/%d/msr' % (cpu,), os.O_WRONLY)
     except:
