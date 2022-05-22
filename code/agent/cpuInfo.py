@@ -83,6 +83,7 @@ def read_cpu_power_and_usage():
 # 获取cpu的TDP
 # 已经求出物理cpu的个数，用总的TDP/个数即可
 def read_cpu_tdp():
+	print("方法调用成功")
 	pass
 
 
