@@ -3,6 +3,16 @@ import sys
 import MySQLdb
 
 cpu_id = 0
+
+def set_cpu_id(value):
+    # 定义一个全局变量
+    global cpu_id 
+    cpu_id = value
+
+def get_cpu_id():
+    global cpu_id
+    return cpu_id
+
 # 定义异常处理函数
 class NumError(Exception):
     def __init__(self, msg):
@@ -75,7 +85,7 @@ def insert_cpu_info():
     cursor.close()
     db.close()
 
-def get_cpu_id():
+def get_cpu_id_databases():
     global cpu_id
     db = MySQLdb.connect("localhost", "root", "", "cpu_level", charset='utf8' )
     cursor = db.cursor()
@@ -121,12 +131,3 @@ def insert_cpu_power():
     cursor.close()
     db.close()
 
-
-
-if __name__ == "__main__":
-    print("fsdaf")
-    print(cpu_id)
-    if cpu_id == 0:
-        get_cpu_id()
-    print(cpu_id)
-    insert_cpu_power()

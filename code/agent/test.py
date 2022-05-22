@@ -18,7 +18,6 @@ def read_server_usage():
 		if a:
 			temp_list = re.split(r'\s+', text)
 			server_usage = temp_list[2]
-			server_usage = 0
 	if server_usage == 0:
 		sys.stderr.write("[ERROR] 无法获取整台服务器的CPU利用率!\n")
 		exit(-1)

@@ -4,11 +4,56 @@ import sys
 import re
 import json
 
-num_core = 0
-num_cpu = 0
+num_core_logic = 0
+num_cpu_physics = 0
 cpu_list = []
 phylog_list = []
 cpuReal_list = []
+
+def set_num_core_logic(value):
+    # 定义一个全局变量
+    global num_core_logic 
+    num_core_logic = value
+
+def get_num_core_logic():
+    global num_core_logic
+    return num_core_logic
+
+def set_num_cpu_physics(value):
+    # 定义一个全局变量
+    global num_cpu_physics 
+    num_cpu_physics = value
+
+def get_num_cpu_physics():
+    global num_cpu_physics
+    return num_cpu_physics
+
+def set_cpu_list(value):
+    # 定义一个全局变量
+    global cpu_list 
+    cpu_list = value
+
+def get_cpu_list():
+    global cpu_list
+    return cpu_list
+
+def set_phylog_list(value):
+    # 定义一个全局变量
+    global phylog_list 
+    phylog_list = value
+
+def get_phylog_list():
+    global phylog_list
+    return phylog_list
+
+def set_cpuReal_list(value):
+    # 定义一个全局变量
+    global cpuReal_list 
+    cpuReal_list = value
+
+def get_cpuReal_list():
+    global cpuReal_list
+    return cpuReal_list
 
 # 存储cpu的一些固定信息
 class cpuInfo:
@@ -43,13 +88,6 @@ class cpuReal:
 		self.usage = usage
 		self.temperature = temperature
 
-# 检查是否是root用户
-def check_requirements():
-	# Check root permission
-	uid = os.getuid()
-	if uid != 0:
-		sys.stderr.write("[ERROR] 需要根用户权限才能执行此代码!\n")
-		exit(-1)
 
 # 解析s-tui，读取每个cpu的功耗
 def read_cpu_power_and_usage():
@@ -61,7 +99,6 @@ def read_cpu_power_and_usage():
 	text = os.popen(cmd1).read()
 	# 异常处理,读取到的文件应该总是一行，进行基本的判断
 	cpu_dict = json.loads(text)
-	print(cpu_dict.get("Power"))
 	for key,value in cpu_dict.get("Power").items():
 		a = re.match(r'^package',key)
 		if a:
@@ -106,8 +143,8 @@ def read_cpu_temperature():
 
 # 获取每个cpu的唯一标识
 def read_cpu_id():
-	global num_core
-	global num_cpu
+	global num_core_logic
+	global num_cpu_physics
 	global cpu_list
 	global phylog_list
 	with open("/proc/cpuinfo", "r") as f:
@@ -121,7 +158,7 @@ def read_cpu_id():
 				processor = int(processor)
 			# 记录physical id
 			if "physical id" in cl:
-				num_core += 1
+				num_core_logic += 1
 				physics_id = cl.replace(" ", "").replace('\n','').replace('\r','').split(":")[1]
 				physics_id = int(physics_id)
 			# 查找到一对信息
@@ -141,27 +178,6 @@ def read_cpu_id():
 				else:
 					isfind = 0
 				physics_id = -1
-				processor = -1	
+				processor = -1
+		num_cpu_physics = len(cpu_list)
 	
-
-
-if __name__ == "__main__":
-	print("开始读取本台服务器的cpu的信息等")
-	# 先检查目前用户的权限
-	# check_requirements()
-	read_cpu_id()
-	# num_cpu = len(cpu_list)
-	# print(num_cpu)
-	read_cpu_temperature()
-	read_cpu_power_and_usage()
-	print("cpu_list的信息")
-	for i in cpu_list:
-		print(i.physics_id , i.name ,i.total_usage, i.logic_id)
-	print("phylog_list的信息")
-	for i in phylog_list:
-		print(i.physics_id , i.logic_id)
-	
-	
-	print("cpuReal_list的信息")
-	for i in cpuReal_list:
-		print(i.physics_id , i.name , i.power , i.usage, i.temperature)

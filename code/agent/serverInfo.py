@@ -1,12 +1,59 @@
 #!/usr/bin/env python
 import os
 import sys
+import re
 
 num_cpu = 0
 server_power = 0
 server_ip = ""
 server_tdp = 0
 server_usage = 0
+
+def set_num_cpu(value):
+    # 定义一个全局变量
+    global num_cpu 
+    num_cpu = value
+
+def get_num_cpu():
+    global num_cpu
+    return num_cpu
+
+def set_server_power(value):
+    # 定义一个全局变量
+    global server_power 
+    server_power = value
+
+def get_server_power():
+    global server_power
+    return server_power
+
+def set_server_ip(value):
+    # 定义一个全局变量
+    global server_ip 
+    server_ip = value
+
+def get_server_ip():
+    global server_ip
+    return server_ip
+
+def set_server_tdp(value):
+    # 定义一个全局变量
+    global server_tdp 
+    server_tdp = value
+
+def get_server_tdp():
+    global server_tdp
+    return server_tdp
+
+def set_server_usage(value):
+    # 定义一个全局变量
+    global server_usage 
+    server_usage = value
+
+def get_server_usage():
+    global server_usage
+    return server_usage
+
 
 # 定义网卡的结构体
 class inet:
@@ -79,7 +126,6 @@ def read_server_usage():
 		if a:
 			temp_list = re.split(r'\s+', text)
 			server_usage = temp_list[2]
-			server_usage = 0
 	if server_usage == 0:
 		sys.stderr.write("[ERROR] 无法获取整台服务器的CPU利用率!\n")
 		exit(-1)

@@ -1,8 +1,17 @@
-import os
 import sys
 import MySQLdb
 
 server_id = 0
+
+def set_server_id(value):
+    # 定义一个全局变量
+    global server_id 
+    server_id = value
+
+def get_server_id():
+    global server_id
+    return server_id
+
 # 定义异常处理函数
 class NumError(Exception):
     def __init__(self, msg):
@@ -60,22 +69,22 @@ def insert_server_info():
         server_id = results[0][0]
         
     except NumError as e:
-        print(e)
+        sys.stderr.write(e)
         # 发生错误时回滚，因为这里只有一条语句，无需回滚
     except InsertError as e:
-        print(e)
+        sys.stderr.write(e)
         db.rollback()
         # 发生错误时回滚，因为这里只有一条语句，无需回滚
     except Exception as e:
-        print(e)
-        print("发生错误")
+        sys.stderr.write(e)
+        sys.stderr.write("发生错误")
         db.rollback()
 
     # 关闭Cursor和Connection:
     cursor.close()
     db.close()
 
-def get_server_id():
+def find_server_id():
     global server_id
     db = MySQLdb.connect("localhost", "root", "", "controller_server", charset='utf8' )
     cursor = db.cursor()
@@ -88,10 +97,10 @@ def get_server_id():
         server_id = results[0][0]
 
     except InsertError as e:
-        print(e)
+        sys.stderr.write(e)
     except Exception as e:
-        print(e)
-        print("发生错误")
+        sys.stderr.write(e)
+        sys.stderr.write("发生错误")
         db.rollback()
 
     # 关闭Cursor和Connection:
@@ -108,26 +117,15 @@ def insert_server_power():
         db.commit()
         if cursor.rowcount !=1:
             raise InsertError("插入时出现错误")
-        print("charuchenggogn ")
+        # sys.stderr.write("charuchenggogn ")
 
     except InsertError as e:
-        print(e)
+        sys.stderr.write(e)
         db.rollback()
     except Exception as e:
-        print(e)
-        print("发生错误")
+        sys.stderr.write(e)
+        sys.stderr.write("发生错误")
         db.rollback()
     # 关闭Cursor和Connection:
     cursor.close()
     db.close()
-
-
-
-if __name__ == "__main__":
-    print("fsdaf")
-    # insert_server_info()
-    print(server_id)
-    if server_id == 0:
-        get_server_id()
-    print(server_id)
-    insert_server_power()
