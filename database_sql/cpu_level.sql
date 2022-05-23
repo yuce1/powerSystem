@@ -25,7 +25,7 @@ CREATE TABLE `capping`  (
   `capping_id` int(10) NOT NULL AUTO_INCREMENT COMMENT 'capping记录id',
   `capping_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT 'capping名称，信息描述',
   `cpu_id` int(10) NOT NULL COMMENT '对应cpu的id',
-  `capping_value` float(10) NOT NULL COMMENT 'capping的值',
+  `capping_value` float(6,2) NOT NULL COMMENT 'capping的值',
   `is_del` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '0' COMMENT '是否删除(0:未删除；1:已删除)',
   `create_date` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间，记录capping动作的时间',
   PRIMARY KEY (`capping_id`) USING BTREE
@@ -52,9 +52,9 @@ CREATE TABLE `cpu_power`  (
   `cpu_power_id` int(10) NOT NULL AUTO_INCREMENT COMMENT 'cpu实时功耗id',
   `cpu_power_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT 'cpu实时功耗名称，信息描述',
   `cpu_id` int(10) NOT NULL COMMENT 'cpu id（外键）',
-  `cpu_power` float(10) NOT NULL COMMENT 'cpu的实时功耗的值',
-  `cpu_usage` float(10) NOT NULL COMMENT 'cpu的利用率',
-  `cpu_temperature` float(10) NOT NULL COMMENT 'cpu的温度',
+  `cpu_power` float(6,2) NOT NULL COMMENT 'cpu的实时功耗的值',
+  `cpu_usage` float(6,2) NOT NULL COMMENT 'cpu的利用率',
+  `cpu_temperature` float(6,2) NOT NULL COMMENT 'cpu的温度',
   `is_del` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '0' COMMENT '是否删除(0:未删除；1:已删除)',
   `create_date` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`cpu_power_id`) USING BTREE

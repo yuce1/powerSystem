@@ -25,7 +25,7 @@ CREATE TABLE `capping`  (
   `capping_id` int(10) NOT NULL AUTO_INCREMENT COMMENT 'capping记录id',
   `capping_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT 'capping名称，信息描述',
   `controller_server_id` int(10) NOT NULL COMMENT '控制器agent对应关系的主键',
-  `capping_value` float(10) NOT NULL COMMENT 'capping的值',
+  `capping_value` float(6,2) NOT NULL COMMENT 'capping的值',
   `is_del` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '0' COMMENT '是否删除(0:未删除；1:已删除)',
   `create_date` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间，记录capping动作的时间',
   PRIMARY KEY (`capping_id`) USING BTREE
@@ -81,8 +81,8 @@ CREATE TABLE `server_machine_power`  (
   `server_machine_power_id` int(10) NOT NULL AUTO_INCREMENT COMMENT '服务器实时功耗id',
   `server_machine_power_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '服务器实时功耗名称，信息描述',
   `server_machine_id` int(10) NOT NULL COMMENT '服务器id（外键）',
-  `server_machine_power` float(10) NOT NULL COMMENT '服务器的实时功耗的值',
-  `server_machine_usage` float(10) NOT NULL COMMENT '服务器的利用率',
+  `server_machine_power` float(6,2) NOT NULL COMMENT '服务器的实时功耗的值',
+  `server_machine_usage` float(6,2) NOT NULL COMMENT '服务器的利用率',
   `is_del` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '0' COMMENT '是否删除(0:未删除；1:已删除)',
   `create_date` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`server_machine_power_id`) USING BTREE
