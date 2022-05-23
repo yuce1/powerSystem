@@ -70,15 +70,14 @@ def insert_cpu_info(cpu_name , cpu_tdp):
         cpu_id = results[0][0]
         
     except NumError as e:
-        print(e)
+        sys.stderr.write(e.msg)
         # 发生错误时回滚，因为这里只有一条语句，无需回滚
     except InsertError as e:
-        print(e)
+        sys.stderr.write(e.msg)
         db.rollback()
         # 发生错误时回滚，因为这里只有一条语句，无需回滚
     except Exception as e:
-        print(e)
-        print("发生错误")
+        sys.stderr.write(e.msg)
         db.rollback()
 
     # 关闭Cursor和Connection:
@@ -98,10 +97,9 @@ def get_cpu_id_databases(cpu_name):
         cpu_id = results[0][0]
 
     except InsertError as e:
-        print(e)
+        sys.stderr.write(e.msg)
     except Exception as e:
-        print(e)
-        print("发生错误")
+        sys.stderr.write(e.msg)
         db.rollback()
 
     # 关闭Cursor和Connection:
@@ -117,14 +115,12 @@ def insert_cpu_power(cpu_id, cpu_power, cpu_usage, cpu_temperature):
         db.commit()
         if cursor.rowcount !=1:
             raise InsertError("插入时出现错误")
-        print("charuchenggogn ")
 
     except InsertError as e:
-        print(e)
+        sys.stderr.write(e.msg)
         db.rollback()
     except Exception as e:
-        print(e)
-        print("发生错误")
+        sys.stderr.write(e.msg)
         db.rollback()
     # 关闭Cursor和Connection:
     cursor.close()

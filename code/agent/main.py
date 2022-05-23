@@ -20,7 +20,7 @@ if __name__ == "__main__":
 	read_cpu_id()
 
 	for i in get_cpuReal_list():
-		insert_cpu_info(i[1] , int(get_server_tdp()/get_num_cpu()))
+		insert_cpu_info(i.name , int(get_server_tdp()/get_num_cpu()))
 
 	# 死循环
 	while True:
@@ -39,11 +39,11 @@ if __name__ == "__main__":
 		
 		# 对于cpulist里的每一个cpu进行如下操作
 		for i in get_cpuReal_list():
-			get_cpu_id_databases(i[1])
+			get_cpu_id_databases(i.name)
 			if get_cpu_id() == 0:
 				sys.stderr.write("[ERROR] 数据库中未发现cpu信息!\n")
 			else:
-				insert_cpu_power(get_cpu_id(), i[2], i[3], i[4])
+				insert_cpu_power(get_cpu_id(), i.power, i.usage, i.temperature)
 
 		print("-----------------打印服务器的信息----------------")
 		print(get_num_cpu())

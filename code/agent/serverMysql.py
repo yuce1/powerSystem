@@ -69,14 +69,14 @@ def insert_server_info(server_machine_ip, server_machine_tdp):
         server_id = results[0][0]
         
     except NumError as e:
-        sys.stderr.write(e)
+        sys.stderr.write(e.msg)
         # 发生错误时回滚，因为这里只有一条语句，无需回滚
     except InsertError as e:
-        sys.stderr.write(e)
+        sys.stderr.write(e.msg)
         db.rollback()
         # 发生错误时回滚，因为这里只有一条语句，无需回滚
     except Exception as e:
-        sys.stderr.write(e)
+        sys.stderr.write(e.msg)
         sys.stderr.write("发生错误")
         db.rollback()
 
@@ -97,9 +97,9 @@ def find_server_id(server_machine_ip):
         server_id = results[0][0]
 
     except InsertError as e:
-        sys.stderr.write(e)
+        sys.stderr.write(e.msg)
     except Exception as e:
-        sys.stderr.write(e)
+        sys.stderr.write(e.msg)
         sys.stderr.write("发生错误")
         db.rollback()
 
@@ -119,10 +119,10 @@ def insert_server_power(server_machine_id, server_machine_power, server_machine_
         # sys.stderr.write("charuchenggogn ")
 
     except InsertError as e:
-        sys.stderr.write(e)
+        sys.stderr.write(e.msg)
         db.rollback()
     except Exception as e:
-        sys.stderr.write(e)
+        sys.stderr.write(e.msg)
         sys.stderr.write("发生错误")
         db.rollback()
     # 关闭Cursor和Connection:

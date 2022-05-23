@@ -170,11 +170,3 @@ def read_server_ip():
 		sys.stderr.write("[ERROR] 无法查询IP地址或者除了docker0外还有其他的网卡!\n")
 		exit(-1)
 
-if __name__ == "__main__":
-	print("开始读取本台服务器的功耗信息等")
-	# 先检查目前用户的权限
-	# check_requirements()
-	read_cpu_num()
-	# 调用此方法需要root权限，已经在上面进行了验证
-	# read_server_power()
-	read_server_ip()
