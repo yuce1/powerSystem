@@ -4,10 +4,10 @@ import sys
 import re
 
 num_cpu = 0
-server_power = 0
+server_power = 0.0
 server_ip = ""
 server_tdp = 0
-server_usage = 0
+server_usage = 0.0
 
 def set_num_cpu(value):
     # 定义一个全局变量

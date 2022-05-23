@@ -28,16 +28,16 @@ class InsertError(Exception):
     def __str__(self):
         return self.msg
 
-def insert_server_info():
+def insert_server_info(server_machine_ip, server_machine_tdp):
     global server_id
     # 打开数据库连接
     db = MySQLdb.connect("localhost", "root", "", "controller_server", charset='utf8' )
     # 使用cursor()方法获取操作游标 
     cursor = db.cursor()
 
-    select_sql = "SELECT * FROM server_machine  WHERE server_machine_ip = \"%s\";" % ("10.10.110.125")
+    select_sql = "SELECT * FROM server_machine  WHERE server_machine_ip = \"%s\";" % (server_machine_ip)
     # print(select_sql)
-    insert_sql = "INSERT INTO server_machine(server_machine_ip,server_machine_tdp) VALUES (\"%s\", %d);" % ("10.10.110.125", 250)
+    insert_sql = "INSERT INTO server_machine(server_machine_ip,server_machine_tdp) VALUES (\"%s\", %d);" % (server_machine_ip, server_machine_tdp)
     # print(insert_sql)
 
     # 使用Cursor对象执行insert，update，delete语句时，执行结果由rowcount返回影响的行数，就可以拿到执行结果。
@@ -84,11 +84,11 @@ def insert_server_info():
     cursor.close()
     db.close()
 
-def find_server_id():
+def find_server_id(server_machine_ip):
     global server_id
     db = MySQLdb.connect("localhost", "root", "", "controller_server", charset='utf8' )
     cursor = db.cursor()
-    select_sql = "SELECT * FROM server_machine  WHERE server_machine_ip = \"%s\";" % ("10.10.110.123")
+    select_sql = "SELECT * FROM server_machine  WHERE server_machine_ip = \"%s\";" % (server_machine_ip)
     try:
         cursor.execute(select_sql)
         results = cursor.fetchall()
@@ -107,11 +107,10 @@ def find_server_id():
     cursor.close()
     db.close()
 
-def insert_server_power():
-    global server_id
+def insert_server_power(server_machine_id, server_machine_power, server_machine_usage):
     db = MySQLdb.connect("localhost", "root", "", "controller_server", charset='utf8' )
     cursor = db.cursor()
-    insert_sql = "INSERT INTO server_machine_power(server_machine_id, server_machine_power, server_machine_usage) VALUES (%d, %d, %d);" % (server_id, 555 ,12)
+    insert_sql = "INSERT INTO server_machine_power(server_machine_id, server_machine_power, server_machine_usage) VALUES (%d, %f, %f);" % (server_machine_id, server_machine_power ,server_machine_usage)
     try:
         cursor.execute(insert_sql)
         db.commit()

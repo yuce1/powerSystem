@@ -29,16 +29,16 @@ class InsertError(Exception):
     def __str__(self):
         return self.msg
 
-def insert_cpu_info():
+def insert_cpu_info(cpu_name , cpu_tdp):
     global cpu_id
     # 打开数据库连接
     db = MySQLdb.connect("localhost", "root", "", "cpu_level", charset='utf8' )
     # 使用cursor()方法获取操作游标 
     cursor = db.cursor()
 
-    select_sql = "SELECT * FROM cpu  WHERE cpu_name = \"%s\";" % ("cpu1")
+    select_sql = "SELECT * FROM cpu  WHERE cpu_name = \"%s\";" % (cpu_name)
     # print(select_sql)
-    insert_sql = "INSERT INTO cpu(cpu_name,cpu_tdp) VALUES (\"%s\", %d);" % ("cpu1", 120)
+    insert_sql = "INSERT INTO cpu(cpu_name,cpu_tdp) VALUES (\"%s\", %d);" % (cpu_name, cpu_tdp)
     # print(insert_sql)
 
     # 使用Cursor对象执行insert，update，delete语句时，执行结果由rowcount返回影响的行数，就可以拿到执行结果。
@@ -85,11 +85,11 @@ def insert_cpu_info():
     cursor.close()
     db.close()
 
-def get_cpu_id_databases():
+def get_cpu_id_databases(cpu_name):
     global cpu_id
     db = MySQLdb.connect("localhost", "root", "", "cpu_level", charset='utf8' )
     cursor = db.cursor()
-    select_sql = "SELECT * FROM cpu  WHERE cpu_name = \"%s\";" % ("cpu1")
+    select_sql = "SELECT * FROM cpu  WHERE cpu_name = \"%s\";" % (cpu_name)
     try:
         cursor.execute(select_sql)
         results = cursor.fetchall()
@@ -108,11 +108,10 @@ def get_cpu_id_databases():
     cursor.close()
     db.close()
 
-def insert_cpu_power():
-    global cpu_id
+def insert_cpu_power(cpu_id, cpu_power, cpu_usage, cpu_temperature):
     db = MySQLdb.connect("localhost", "root", "", "cpu_level", charset='utf8' )
     cursor = db.cursor()
-    insert_sql = "INSERT INTO cpu_power(cpu_id, cpu_power, cpu_usage, cpu_temperature) VALUES (%d, %d, %d, %d);" % (cpu_id, 98 ,17,23)
+    insert_sql = "INSERT INTO cpu_power(cpu_id, cpu_power, cpu_usage, cpu_temperature) VALUES (%d, %f, %f, %f);" % (cpu_id, cpu_power ,cpu_usage,cpu_temperature)
     try:
         cursor.execute(insert_sql)
         db.commit()

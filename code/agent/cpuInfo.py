@@ -80,7 +80,7 @@ class cpuReal:
 	name = ""
 	power = 0.0
 	usage = 0.0
-	temperature = 0
+	temperature = 0.0
 	def __init__(self, physics_id, name, power = 0, usage = 0, temperature = 0):
 		self.physics_id = physics_id
 		self.name = name
