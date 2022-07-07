@@ -65,6 +65,6 @@ if __name__ == "__main__":
 			print(i.physics_id , i.name , i.power , i.usage, i.temperature)
 		
 		# 休眠10s钟
-		time.sleep(10)
+		time.sleep(3)
 	
 

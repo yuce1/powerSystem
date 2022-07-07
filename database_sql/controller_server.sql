@@ -39,7 +39,7 @@ CREATE TABLE `controller`  (
   `controller_id` int(10) NOT NULL AUTO_INCREMENT COMMENT 'controller主键id',
   `controller_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '控制器名称，信息描述',
   `server_machine_id` int(10) NOT NULL COMMENT '控制器所处的服务器id（外键）',
-  `controller_tdp` int(5) NOT NULL COMMENT '服务器的tdp的值',
+  `controller_tdp` int(5) NOT NULL COMMENT '控制器的tdp的值',
   `is_del` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '0' COMMENT '是否删除(0:未删除；1:已删除)',
   `create_date` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`controller_id`) USING BTREE
