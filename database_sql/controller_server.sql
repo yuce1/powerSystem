@@ -24,7 +24,7 @@ DROP TABLE IF EXISTS `capping`;
 CREATE TABLE `capping`  (
   `capping_id` int(10) NOT NULL AUTO_INCREMENT COMMENT 'capping记录id',
   `capping_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT 'capping名称，信息描述',
-  `controller_server_id` int(10) NOT NULL COMMENT '控制器agent对应关系的主键',
+  `line_server_id` int(10) NOT NULL COMMENT '线路服务器对应关系的主键',
   `capping_value` float(6,2) NOT NULL COMMENT 'capping的值',
   `is_del` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '0' COMMENT '是否删除(0:未删除；1:已删除)',
   `create_date` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间，记录capping动作的时间',
@@ -55,6 +55,9 @@ CREATE TABLE `server_machine`  (
   `server_machine_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '服务器名称，信息描述',
   `server_machine_ip` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '服务器ip地址',
   `server_machine_tdp` int(5) NOT NULL COMMENT '服务器的tdp的值',
+  `server_machine_level` int(5) NOT NULL DEFAULT 0 COMMENT '优先级 0：低 1：中 2：高',
+  `server_machine_state` int(5) NOT NULL DEFAULT 0 COMMENT 'capping状态 0：uncapping 1：capping',
+  `server_machine_capping_value` float(6,2) NOT NULL DEFAULT 0.0 COMMENT '服务器的capping值',
   `is_del` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '0' COMMENT '是否删除(0:未删除；1:已删除)',
   `create_date` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`server_machine_id`) USING BTREE
@@ -80,6 +83,8 @@ CREATE TABLE `power_line`  (
   `power_line_id` int(10) NOT NULL AUTO_INCREMENT COMMENT '线路的唯一主键',
   `power_line_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '线路名称，信息描述',
   `power_line_tdp` int(5) NOT NULL COMMENT '线路的tdp的值',
+  `power_line_state` int(5) NOT NULL DEFAULT 0 COMMENT 'capping状态 0：uncapping 1：capping',
+  `power_line_capping_value` float(6,2) NOT NULL DEFAULT 0.0 COMMENT '线路的capping值',
   `is_del` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '0' COMMENT '是否删除(0:未删除；1:已删除)',
   `create_date` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`power_line_id`) USING BTREE
