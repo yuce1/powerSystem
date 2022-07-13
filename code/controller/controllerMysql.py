@@ -1,3 +1,4 @@
+from select import select
 import sys
 import MySQLdb
 import time
@@ -47,7 +48,7 @@ class Server:
     server_machine_id = -1
     server_machine_tdp = 0
     server_machine_state = -1
-    server_machine_level = 0
+    server_machine_level = -1
     def __init__(self, server_machine_id, server_machine_tdp, server_machine_state, server_machine_level):
         self.server_machine_id = server_machine_id
         self.server_machine_tdp = server_machine_tdp
@@ -114,7 +115,7 @@ def find_server_power(server_machine_id):
     try:
         cursor.execute(select_sql)
         results = cursor.fetchall()
-        print(results)
+        # print(results)
         if len(results) == 0:
             raise NumError("未查询到该服务器的功耗值")
         real_power = ServerRealPower(results[0][0], results[0][1], results[0][2])
@@ -131,4 +132,54 @@ def find_server_power(server_machine_id):
     db.close()
     return real_power
 
+# 更新线路状态，是否处于capping状态
+def update_power_line_state(power_line_state, power_line_id):
+
+    db = MySQLdb.connect("localhost", "root", "", "controller_server", charset='utf8' )
+    cursor = db.cursor()
+    update_sql = "update power_line set power_line_state = %d where power_line_id = %d;" % (power_line_state, power_line_id)
+    try:
+        cursor.execute(update_sql)
+        db.commit()
+        if cursor.rowcount > 1:
+            raise InsertError("更新线路状态时出现错误")
+        
+    except NumError as e:
+        sys.stderr.write(e.msg)
+    except Exception as e:
+        sys.stderr.write(e.msg)
+        sys.stderr.write("发生错误")
+        db.rollback()
+
+    # 关闭Cursor和Connection:
+    cursor.close()
+    db.close()
+
+# 发生capping/uncapping动作时，记录，并返回记录主键
+def insert_capping(power_line_id, power_line_tdp, total_power, capping_type):
+    db = MySQLdb.connect("localhost", "root", "", "controller_server", charset='utf8' )
+    cursor = db.cursor()
+    insert_sql = "INSERT INTO capping(power_line_id, power_line_tdp, total_power, capping_type) VALUES (%d, %d, %f, %d);" % (power_line_id, power_line_tdp, total_power, capping_type)
+    select_sql = "SELECT capping_id FROM capping WHERE power_line_id = %d ORDER BY create_date DESC  limit 1;" % (power_line_id)
+    try:
+        cursor.execute(insert_sql)
+        db.commit()
+        if cursor.rowcount !=1:
+            raise InsertError("插入时出现错误")
+        # sys.stderr.write("charuchenggogn ")
+        cursor.execute(select_sql)
+        results = cursor.fetchall()
+        capping_id = results[0][0]
+
+    except InsertError as e:
+        sys.stderr.write(e.msg)
+        db.rollback()
+    except Exception as e:
+        sys.stderr.write(e.msg)
+        sys.stderr.write("发生错误")
+        db.rollback()
+    # 关闭Cursor和Connection:
+    cursor.close()
+    db.close()
+    return capping_id
 

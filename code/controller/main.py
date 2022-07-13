@@ -27,7 +27,7 @@ def capping():
     return 0
 
 def warning():
-    return 0
+    print("警告：供电线路安排不合理，线路无法承担供电服务器功耗峰值的75%，影响性能")
 
 if __name__ == "__main__":
     print("----------------总方法开始执行------------------")
@@ -37,23 +37,38 @@ if __name__ == "__main__":
     line_server_list = get_line_server_list()
     while True:
         # 休眠9s钟，以9s为一个时间周期
-        time.sleep(9)
+        time.sleep(1)
         # 遍历服务器线路
         for i in line_server_list:
             # 线路id和线路TDP
-            print(i.power_line_id, i.power_line_tdp)
+            print("线路id和线路tdp为")
+            print(i.power_line_id, i.power_line_tdp, i.power_line_state)
             ServerInfoAndPowerList = []
             # 遍历服务器列表，获取每台服务器的实时功耗
             for j in i.server_list:
                 result = find_server_power(j.server_machine_id)
                 ServerInfoAndPowerList.append(ServerInfoAndPower(j.server_machine_id, j.server_machine_tdp, j.server_machine_level, result.server_machine_power, result.server_machine_usage))
+            
+            # 打印服务器信息
+            print("打印服务器信息")
+            for j in ServerInfoAndPowerList:
+                print(j.server_machine_id, j.server_machine_tdp, j.server_machine_level, j.server_machine_power, j.server_machine_usage)
             # 将服务器实时功耗进行聚合
             total_power = 0.0
             for j in ServerInfoAndPowerList:
                 total_power += j.server_machine_power
+            print("聚合功率是")
+            print(total_power)
             # 根据总功耗进行判断
             if total_power > i.power_line_tdp * get_capping_threshold():
                 # 进行capping动作
+                print("进行capping动作！")
+                # 更改线路的状态，将capping信息插入数据库
+                update_power_line_state(get_power_line_state(), i.power_line_id)
+                i.power_line_state = get_power_line_state()
+                capping_id = insert_capping(i.power_line_id, i.power_line_tdp, total_power, get_power_line_state())
+                print(capping_id)
+
                 # 首先进行排序，使用冒泡排序
                 num_len = len(ServerInfoAndPowerList)
                 for j in range(num_len):
@@ -73,6 +88,10 @@ if __name__ == "__main__":
                             sign = True
                     if not sign:
                         break
+                # 打印排序完的服务器信息
+                print("打印排序完的服务器信息")
+                for j in ServerInfoAndPowerList:
+                    print(j.server_machine_id, j.server_machine_tdp, j.server_machine_level, j.server_machine_power, j.server_machine_usage)
                 # 获取total_capping
                 total_capping = total_power - i.power_line_tdp * get_capping_target()
                 # 遍历服务器列表
@@ -83,9 +102,13 @@ if __name__ == "__main__":
                         if server_capping < total_capping:
                             # 对服务器采取capping动作，capping的目标值为服务器TDP*75%
                             capping()
+                            # 将capping动作插入如数据库
+                            # 修改数据库状态，修改列表中的状态
                             total_capping = total_capping - server_capping
                         else:
                             # 对服务器采取capping动作，capping的目标值为server_capping
+                            # 将capping动作插入如数据库
+                            # 修改数据库状态，修改列表中的状态
                             total_capping = 0
                 if total_capping != 0:
                     # 警报：说明线路无法支持足够大的功率
