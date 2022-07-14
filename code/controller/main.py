@@ -147,6 +147,7 @@ if __name__ == "__main__":
                 if i.power_line_state == get_power_line_state():
                     # 进行uncapping动作
                     print("进行uncapping操作")
+                    insert_capping(i.power_line_id, i.power_line_tdp, total_power, i.power_line_tdp * get_capping_threshold(), get_power_line_no_state())
                     # 更改线路状态
                     i.power_line_state = get_power_line_no_state()
                     update_power_line_state(get_power_line_no_state(), i.power_line_id)
