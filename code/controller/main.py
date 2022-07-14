@@ -72,6 +72,9 @@ if __name__ == "__main__":
             if total_power > i.power_line_tdp * get_capping_threshold():
                 # 进行capping动作
                 print("进行capping动作！")
+                if i.power_line_state == get_power_line_state():
+                    print("该线路正在执行capping动作，尚未稳定，等待稳定后执行")
+                    continue
                 # 更改线路的状态，将capping信息插入数据库
                 update_power_line_state(get_power_line_state(), i.power_line_id)
                 i.power_line_state = get_power_line_state()
@@ -161,6 +164,7 @@ if __name__ == "__main__":
                 else:
                     continue
         print2(line_server_list)
+        print("\n\n-----------------------------------------------------------------------\n\n")
 
         # 休眠9s钟，以9s为一个时间周期
         time.sleep(9)
