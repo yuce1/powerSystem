@@ -34,8 +34,8 @@ class InsertError(Exception):
 # 存储该服务器控制的线路和服务器的基本信息
 class LineServer:
     power_line_id = -1
-    power_line_tdp = 0
-    power_line_state = 0
+    power_line_tdp = -1
+    power_line_state = -1
     server_list = []
     def __init__(self, power_line_id, power_line_tdp, power_line_state, server_list):
         self.power_line_id = power_line_id
@@ -156,10 +156,10 @@ def update_power_line_state(power_line_state, power_line_id):
     db.close()
 
 # 发生capping/uncapping动作时，记录，并返回记录主键
-def insert_capping(power_line_id, power_line_tdp, total_power, capping_type):
+def insert_capping(power_line_id, power_line_tdp, total_power, capping_target, capping_type):
     db = MySQLdb.connect("localhost", "root", "", "controller_server", charset='utf8' )
     cursor = db.cursor()
-    insert_sql = "INSERT INTO capping(power_line_id, power_line_tdp, total_power, capping_type) VALUES (%d, %d, %f, %d);" % (power_line_id, power_line_tdp, total_power, capping_type)
+    insert_sql = "INSERT INTO capping(power_line_id, power_line_tdp, total_power, capping_target, capping_type) VALUES (%d, %d, %f, %f, %d);" % (power_line_id, power_line_tdp, total_power, capping_target, capping_type)
     select_sql = "SELECT capping_id FROM capping WHERE power_line_id = %d ORDER BY create_date DESC  limit 1;" % (power_line_id)
     try:
         cursor.execute(insert_sql)
@@ -170,6 +170,52 @@ def insert_capping(power_line_id, power_line_tdp, total_power, capping_type):
         cursor.execute(select_sql)
         results = cursor.fetchall()
         capping_id = results[0][0]
+
+    except InsertError as e:
+        sys.stderr.write(e.msg)
+        db.rollback()
+    except Exception as e:
+        sys.stderr.write(e.msg)
+        sys.stderr.write("发生错误")
+        db.rollback()
+    # 关闭Cursor和Connection:
+    cursor.close()
+    db.close()
+    return capping_id
+
+    # 更新服务器状态，是否处于capping状态
+def update_server_machine_state(server_machine_state, server_machine_id):
+
+    db = MySQLdb.connect("localhost", "root", "", "controller_server", charset='utf8' )
+    cursor = db.cursor()
+    update_sql = "update server_machine set server_machine_state = %d where server_machine_id = %d;" % (server_machine_state, server_machine_id)
+    try:
+        cursor.execute(update_sql)
+        db.commit()
+        if cursor.rowcount > 1:
+            raise InsertError("更新服务器状态时出现错误")
+        
+    except NumError as e:
+        sys.stderr.write(e.msg)
+    except Exception as e:
+        sys.stderr.write(e.msg)
+        sys.stderr.write("发生错误")
+        db.rollback()
+
+    # 关闭Cursor和Connection:
+    cursor.close()
+    db.close()
+
+# 发生capping/uncapping动作时，记录capping detail
+def insert_capping_detail(capping_id, server_machine_id, server_machine_power, capping_target):
+    db = MySQLdb.connect("localhost", "root", "", "controller_server", charset='utf8' )
+    cursor = db.cursor()
+    insert_sql = "INSERT INTO capping_detail(capping_id, server_machine_id, server_machine_power, capping_target) VALUES (%d, %d, %f, %f);" % (capping_id, server_machine_id, server_machine_power, capping_target)
+    try:
+        cursor.execute(insert_sql)
+        db.commit()
+        if cursor.rowcount !=1:
+            raise InsertError("插入capping detail时出现错误")
 
     except InsertError as e:
         sys.stderr.write(e.msg)

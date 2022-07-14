@@ -27,6 +27,7 @@ CREATE TABLE `capping`  (
   `power_line_id` int(10) NOT NULL COMMENT '线路主键',
   `power_line_tdp` int(5) NOT NULL COMMENT '线路的tdp的值',
   `total_power` float(6,2) NOT NULL COMMENT '服务器的实时功耗之和',
+  `capping_target` float(6,2) NOT NULL COMMENT 'capping的目标',
   `capping_type` int(5) NOT NULL COMMENT 'capping状态 0：uncapping 1：capping',
   `is_del` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '0' COMMENT '是否删除(0:未删除；1:已删除)',
   `create_date` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间，记录capping动作的时间',

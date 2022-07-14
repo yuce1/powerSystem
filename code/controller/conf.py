@@ -16,11 +16,48 @@ uncapping_threshold = 0.9
 # 线路处于capping状态时，值为多少  0：uncapping 1：capping
 power_line_state = 1
 
+power_line_no_state = 0
+
 # 服务器处于capping状态时，值为多少  0：uncapping 1：capping
 server_machine_state = 1
 
+server_machine_no_state = 0
+
+# 服务器的capping目标只有两个值，一个是初始值uncapping值，一个是capping值
 # 服务器capping多少不影响性能
 server_machine_capping_threshold = 0.75
+
+# 单个服务器的capping目标应该是服务器TDP的百分比 百分之九十九还是百分百
+server_machine_capping_upper = 1.0
+
+def set_power_line_no_state(value):
+    # 定义一个全局变量
+    global power_line_no_state 
+    power_line_no_state = value
+
+def get_power_line_no_state():
+    global power_line_no_state
+    return power_line_no_state
+
+def set_server_machine_no_state(value):
+    # 定义一个全局变量
+    global server_machine_no_state 
+    server_machine_no_state = value
+
+def get_server_machine_no_state():
+    global server_machine_no_state
+    return server_machine_no_state
+
+
+def set_server_machine_capping_upper(value):
+    # 定义一个全局变量
+    global server_machine_capping_upper 
+    server_machine_capping_upper = value
+
+def get_server_machine_capping_upper():
+    global server_machine_capping_upper
+    return server_machine_capping_upper
+
 
 def set_server_machine_capping_threshold(value):
     # 定义一个全局变量
