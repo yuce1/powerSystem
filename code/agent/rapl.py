@@ -116,16 +116,21 @@ def write_msr(msr, val, skt=None):
         f = os.open('/dev/cpu/%d/msr' % (cpu,), os.O_WRONLY)
     except:
         sys.stderr.write("[ERROR] Failed to open /dev/cpu/%d/msr!\n"  % (cpu))
-        exit(-1)
+        print("执行修改操作失败！")
+        return 0
 
     os.lseek(f, msr, os.SEEK_SET)
 
     try:
         os.write(f, struct.pack('Q', val))
     except:
-        pass
+        sys.stderr.write("[ERROR] Failed to open /dev/cpu/%d/msr!\n"  % (cpu))
+        print("执行修改操作失败！")
+        return 0
 
     os.close(f)
+    print("执行修改操作成功！")
+    return 1
 
 # Check requisites of the system
 # 进行运行环境的检查
@@ -375,14 +380,17 @@ def set_power_limit(skt, power_lane, power_limit):
     else:
         msr_rapl = (msr_rapl & ~0x7FFF) | power_cap_rapl
 
+    isSuccess = 0
     if "pkg_limit_1" in power_lane or "pkg_limit_2" in power_lane:
-        write_msr(MSR_PKG_POWER_LIMIT, msr_rapl, skt)
+        isSuccess = write_msr(MSR_PKG_POWER_LIMIT, msr_rapl, skt)
     elif "dram" in power_lane:
-        write_msr(MSR_DRAM_POWER_LIMIT, msr_rapl, skt)
+        isSuccess = write_msr(MSR_DRAM_POWER_LIMIT, msr_rapl, skt)
     elif "pp0" in power_lane:
-        write_msr(MSR_PP0_POWER_LIMIT, msr_rapl, skt)
+        isSuccess = write_msr(MSR_PP0_POWER_LIMIT, msr_rapl, skt)
     elif "pp1" in power_lane:
-        write_msr(MSR_PP1_POWER_LIMIT, msr_rapl, skt)
+        isSuccess = write_msr(MSR_PP1_POWER_LIMIT, msr_rapl, skt)
+    
+    return isSuccess
 
 # Set RAPL time window in ms
 # 传入单位是微秒
@@ -428,14 +436,17 @@ def set_time_window(skt, power_lane, time_window):
         F = int(((time_window_rapl / (math.pow(2,Y))) - 1.0) * 10.0)
         msr_rapl = (msr_rapl & ~0xFE0000) | (Y << 17) | (F << 22)
 
+    isSuccess = 0
     if "pkg_limit_1" in power_lane or "pkg_limit_2" in power_lane:
-        write_msr(MSR_PKG_POWER_LIMIT, msr_rapl, skt)
+        isSuccess = write_msr(MSR_PKG_POWER_LIMIT, msr_rapl, skt)
     elif "dram" in power_lane:
-        write_msr(MSR_DRAM_POWER_LIMIT, msr_rapl, skt)
+        isSuccess = write_msr(MSR_DRAM_POWER_LIMIT, msr_rapl, skt)
     elif "pp0" in power_lane:
-        write_msr(MSR_PP0_POWER_LIMIT, msr_rapl, skt)
+        isSuccess = write_msr(MSR_PP0_POWER_LIMIT, msr_rapl, skt)
     elif "pp1" in power_lane:
-        write_msr(MSR_PP1_POWER_LIMIT, msr_rapl, skt)
+        isSuccess = write_msr(MSR_PP1_POWER_LIMIT, msr_rapl, skt)
+
+    return isSuccess
 
 # Set RAPL enable limit
 def set_enable_limit(skt, power_lane, setting):

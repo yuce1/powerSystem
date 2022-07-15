@@ -6,6 +6,36 @@ from cpuInfo import *
 from cpuMysql import *
 from serverInfo import *
 from serverMysql import *
+from rapl import *
+from conf import *
+
+# 执行capping操作
+def capping(target_power):
+	total_power = 0.0
+	for i in get_cpuReal_list():
+		# print(i.physics_id , i.name , i.power , i.usage, i.temperature)
+		total_power += i.power
+	for i in get_cpuReal_list():
+		su1 = set_power_limit(i.physics_id, ["pkg_limit_1"], int(i.power/total_power*target_power*1000000))
+		su2 = set_time_window(i.physics_id, ["pkg_limit_1"], 3000000)
+		su3 = set_power_limit(i.physics_id, ["pkg_limit_2"], int(i.power/total_power*target_power*1000000))
+		su4 = set_time_window(i.physics_id, ["pkg_limit_2"], 3000000)
+		if su1 == 0 | su2 == 0 | su3 == 0 | su4 == 0:
+			print("capping操作失败！")
+		else:
+			print("capping操作成功！")
+		
+
+def uncapping():
+	for i in get_cpuReal_list():
+		su1 = set_power_limit(i.physics_id, ["pkg_limit_1"], int(get_cpu_TDP()*get_cpu_capping_upper()*1000000))
+		su2 = set_time_window(i.physics_id, ["pkg_limit_1"], 3000000)
+		su3 = set_power_limit(i.physics_id, ["pkg_limit_2"], int(get_cpu_TDP()*get_cpu_capping_upper()*1000000))
+		su4 = set_time_window(i.physics_id, ["pkg_limit_2"], 3000000)
+		if su1 == 0 | su2 == 0 | su3 == 0 | su4 == 0:
+			print("uncapping操作失败！")
+		else:
+			print("uncapping操作成功！")
 
 if __name__ == "__main__":
 	print("----------------总方法开始执行------------------")
@@ -18,6 +48,8 @@ if __name__ == "__main__":
 	insert_server_info(get_server_ip(), get_server_tdp())
 
 	read_cpu_id()
+	
+	set_cpu_TDP(int(get_server_tdp()/get_num_cpu()))
 
 	for i in get_cpuReal_list():
 		insert_cpu_info(i.name , int(get_server_tdp()/get_num_cpu()))

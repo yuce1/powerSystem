@@ -9,6 +9,16 @@ num_cpu_physics = 0
 cpu_list = []
 phylog_list = []
 cpuReal_list = []
+cpu_TDP = 0
+
+def set_cpu_TDP(value):
+    # 定义一个全局变量
+    global cpu_TDP 
+    cpu_TDP = value
+
+def get_cpu_TDP():
+    global cpu_TDP
+    return cpu_TDP
 
 def set_num_core_logic(value):
     # 定义一个全局变量
