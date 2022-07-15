@@ -14,11 +14,11 @@ def capping(target_power):
 	total_power = 0.0
 	for i in get_cpuReal_list():
 		# print(i.physics_id , i.name , i.power , i.usage, i.temperature)
-		total_power += i.power
+		total_power += float(i.power)
 	for i in get_cpuReal_list():
-		su1 = set_power_limit(i.physics_id, ["pkg_limit_1"], int(i.power/total_power*target_power*1000000))
+		su1 = set_power_limit(i.physics_id, ["pkg_limit_1"], int(float(i.power)/total_power*target_power*1000000))
 		su2 = set_time_window(i.physics_id, ["pkg_limit_1"], 3000000)
-		su3 = set_power_limit(i.physics_id, ["pkg_limit_2"], int(i.power/total_power*target_power*1000000))
+		su3 = set_power_limit(i.physics_id, ["pkg_limit_2"], int(float(i.power)/total_power*target_power*1000000))
 		su4 = set_time_window(i.physics_id, ["pkg_limit_2"], 3000000)
 		if su1 == 0 | su2 == 0 | su3 == 0 | su4 == 0:
 			print("capping操作失败！")
@@ -53,6 +53,9 @@ if __name__ == "__main__":
 
 	for i in get_cpuReal_list():
 		insert_cpu_info(i.name , int(get_server_tdp()/get_num_cpu()))
+	
+	# 初始化rapl模块
+	init_config()
 
 	# 死循环
 	while True:
