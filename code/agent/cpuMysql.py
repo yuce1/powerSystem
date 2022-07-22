@@ -84,6 +84,7 @@ def insert_cpu_info(cpu_name , cpu_tdp):
     cursor.close()
     db.close()
 
+# 设置cpu_id 没有返回值 当进行power记录的时候调用
 def get_cpu_id_databases(cpu_name):
     global cpu_id
     db = MySQLdb.connect("localhost", "root", "", "cpu_level", charset='utf8' )
@@ -126,3 +127,45 @@ def insert_cpu_power(cpu_id, cpu_power, cpu_usage, cpu_temperature):
     cursor.close()
     db.close()
 
+# 没有设置cpu_id 仅仅是返回了值
+def get_cpu_id_when_capping(cpu_name):
+    db = MySQLdb.connect("localhost", "root", "", "cpu_level", charset='utf8' )
+    cursor = db.cursor()
+    select_sql = "SELECT * FROM cpu  WHERE cpu_name = \"%s\";" % (cpu_name)
+    try:
+        cursor.execute(select_sql)
+        results = cursor.fetchall()
+        if len(results) != 1:
+            raise InsertError("没有插入或者插入多条")
+        cpu_id = results[0][0]
+
+    except InsertError as e:
+        sys.stderr.write(e.msg)
+    except Exception as e:
+        sys.stderr.write(e.msg)
+        db.rollback()
+
+    # 关闭Cursor和Connection:
+    cursor.close()
+    db.close()
+    return cpu_id
+
+def insert_cpu_capping(capping_id, cpu_id, cpu_power, capping_target):
+    db = MySQLdb.connect("localhost", "root", "", "cpu_level", charset='utf8' )
+    cursor = db.cursor()
+    insert_sql = "INSERT INTO cpu_capping(capping_id, cpu_id, cpu_power, capping_target) VALUES (%d, %d, %f, %f);" % (capping_id, cpu_id, cpu_power, capping_target)
+    try:
+        cursor.execute(insert_sql)
+        db.commit()
+        if cursor.rowcount !=1:
+            raise InsertError("插入时出现错误")
+
+    except InsertError as e:
+        sys.stderr.write(e.msg)
+        db.rollback()
+    except Exception as e:
+        sys.stderr.write(e.msg)
+        db.rollback()
+    # 关闭Cursor和Connection:
+    cursor.close()
+    db.close()

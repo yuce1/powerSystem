@@ -9,6 +9,7 @@ from serverMysql import *
 from rapl import *
 from conf import *
 
+# 此处的方法没有被调用
 # 执行capping操作
 def capping(target_power):
 	total_power = 0.0
