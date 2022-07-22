@@ -46,11 +46,13 @@ class LineServer:
 # 定义服务器类
 class Server:
     server_machine_id = -1
+    server_machine_ip = ""
     server_machine_tdp = 0
     server_machine_state = -1
     server_machine_level = -1
-    def __init__(self, server_machine_id, server_machine_tdp, server_machine_state, server_machine_level):
+    def __init__(self, server_machine_id, server_machine_ip, server_machine_tdp, server_machine_state, server_machine_level):
         self.server_machine_id = server_machine_id
+        self.server_machine_ip = server_machine_ip
         self.server_machine_tdp = server_machine_tdp
         self.server_machine_state = server_machine_state
         self.server_machine_level = server_machine_level
@@ -82,13 +84,13 @@ def find_power_line_and_server(controller_id):
             raise InsertError("该机柜有多于两条线路供电")
         for result in results:
             select_server_parm = result[0]
-            select_sql_server = "SELECT t2.server_machine_id, t2.server_machine_tdp,t2.server_machine_state, t2.server_machine_level FROM line_server AS t1 LEFT JOIN server_machine AS t2 ON t1.server_machine_id = t2.server_machine_id  WHERE power_line_id = %d;" % (select_server_parm)
+            select_sql_server = "SELECT t2.server_machine_id, t2.server_machine_ip, t2.server_machine_tdp,t2.server_machine_state, t2.server_machine_level FROM line_server AS t1 LEFT JOIN server_machine AS t2 ON t1.server_machine_id = t2.server_machine_id  WHERE power_line_id = %d;" % (select_server_parm)
             cursor.execute(select_sql_server)
             results_server = cursor.fetchall()
             server_list = []
             for res in results_server:
                 # print(res)
-                server_list.append(Server(res[0], res[1], res[2], res[3]))
+                server_list.append(Server(res[0], res[1], res[2], res[3], res[4]))
             line_server_list.append(LineServer(result[0], result[1], result[2], server_list))
 
     except InsertError as e:
@@ -211,11 +213,15 @@ def insert_capping_detail(capping_id, server_machine_id, server_machine_power, c
     db = MySQLdb.connect("localhost", "root", "", "controller_server", charset='utf8' )
     cursor = db.cursor()
     insert_sql = "INSERT INTO capping_detail(capping_id, server_machine_id, server_machine_power, capping_target) VALUES (%d, %d, %f, %f);" % (capping_id, server_machine_id, server_machine_power, capping_target)
+    select_sql = "SELECT capping_detail_id FROM capping_detail WHERE server_machine_id = %d ORDER BY create_date DESC  limit 1;" % (server_machine_id)
     try:
         cursor.execute(insert_sql)
         db.commit()
         if cursor.rowcount !=1:
             raise InsertError("插入capping detail时出现错误")
+        cursor.execute(select_sql)
+        results = cursor.fetchall()
+        capping_detail_id = results[0][0]
 
     except InsertError as e:
         sys.stderr.write(e.msg)
@@ -227,5 +233,4 @@ def insert_capping_detail(capping_id, server_machine_id, server_machine_power, c
     # 关闭Cursor和Connection:
     cursor.close()
     db.close()
-    return capping_id
-
+    return capping_detail_id

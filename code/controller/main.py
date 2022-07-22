@@ -4,27 +4,76 @@ import time
 import sys
 from controllerMysql import *
 from conf import *
+import sys
+
+# 添加引用模块的地址
+sys.path.append('./gen-py')
+
+from communicate import Communicate
+from communicate.ttypes import *
+from communicate.constants import *
+ 
+from thrift import Thrift
+from thrift.transport import TSocket
+from thrift.transport import TTransport
+from thrift.protocol import TBinaryProtocol
+
+
 
 
 # 服务器信息以及实时功耗、利用率等信息
 class ServerInfoAndPower:
     server_machine_id = -1
+    server_machine_ip = ""
     server_machine_tdp = 0
     server_machine_level = 0
     server_machine_power = 0
     server_machine_usage = 0
-    def __init__(self, server_machine_id, server_machine_tdp, server_machine_level, server_machine_power, server_machine_usage):
+    def __init__(self, server_machine_id, server_machine_ip, server_machine_tdp, server_machine_level, server_machine_power, server_machine_usage):
         self.server_machine_id = server_machine_id
+        self.server_machine_ip = server_machine_ip
         self.server_machine_tdp = server_machine_tdp
         self.server_machine_level = server_machine_level
         self.server_machine_power = server_machine_power
         self.server_machine_usage = server_machine_usage
 
-def uncapping():
-    return 0
+def total_capping_thrift(server_machine_ip, capping_type, capping_target, capping_id):
+    try:
+        # Make socket
+        transport = TSocket.TSocket(server_machine_ip, 30303)
+        
+        # Buffering is critical. Raw sockets are very slow
+        transport = TTransport.TBufferedTransport(transport)
+        
+        # Wrap in a protocol
+        protocol = TBinaryProtocol.TBinaryProtocol(transport)
+        
+        # Create a client to use the protocol encoder
+        client = Communicate.Client(protocol)
+        
+        # Connect!
+        transport.open()
+        
+        # msg = client.connect_test()
+        # print(msg)
+        # print("进行connect_test方法测试") 
+        
+        msg = client.sayMsg(capping_type, capping_target, capping_id)
+        print(msg) 
+        transport.close()
+            
+    except Thrift.TException as tx:
+        print("%s" % (tx.message))  
 
-def capping(a):
-    return 0
+def uncapping(server_machine_ip):
+    print("uncapping调用")
+    print(server_machine_ip)
+    total_capping_thrift(server_machine_ip, UNCAPPING, -1, -1)
+
+def capping(server_machine_ip, capping_target, capping_id):
+    print("capping调用")
+    print(server_machine_ip, capping_target, capping_id)
+    total_capping_thrift(server_machine_ip, CAPPING, capping_target, capping_id)
 
 def warning():
     print("警告：供电线路安排不合理，线路无法承担供电服务器功耗峰值的75%，影响性能")
@@ -34,12 +83,12 @@ def print2(line_server_list):
     for i in line_server_list:
         print(i.power_line_id, i.power_line_tdp, i.power_line_state)
         for j in i.server_list:
-            print(j.server_machine_id, j.server_machine_tdp, j.server_machine_state, j.server_machine_level)
+            print(j.server_machine_id, j.server_machine_ip, j.server_machine_tdp, j.server_machine_state, j.server_machine_level)
 
 def print1(ServerInfoAndPowerList):
     print("打印服务器信息")
     for j in ServerInfoAndPowerList:
-        print(j.server_machine_id, j.server_machine_tdp, j.server_machine_level, j.server_machine_power, j.server_machine_usage)
+        print(j.server_machine_id, j.server_machine_ip, j.server_machine_tdp, j.server_machine_level, j.server_machine_power, j.server_machine_usage)
 
 def controller_agent(line_server_list):
     # 遍历服务器线路
@@ -48,7 +97,7 @@ def controller_agent(line_server_list):
         # 遍历服务器列表，获取每台服务器的实时功耗
         for j in i.server_list:
             result = find_server_power(j.server_machine_id)
-            ServerInfoAndPowerList.append(ServerInfoAndPower(j.server_machine_id, j.server_machine_tdp, j.server_machine_level, result.server_machine_power, result.server_machine_usage))
+            ServerInfoAndPowerList.append(ServerInfoAndPower(j.server_machine_id, j.server_machine_ip, j.server_machine_tdp, j.server_machine_level, result.server_machine_power, result.server_machine_usage))
         
         print1(ServerInfoAndPowerList)
         
@@ -105,17 +154,19 @@ def controller_agent(line_server_list):
                         # 继续进行power capping
                         server_capping = server.server_machine_power - server.server_machine_tdp * get_server_machine_capping_threshold()
                         if server_capping < total_capping:
-                            # 对服务器采取capping动作，capping的目标值为服务器TDP*75%
-                            capping(server.server_machine_tdp * get_server_machine_capping_threshold())
                             # 将capping detail动作插入如数据库
-                            insert_capping_detail(capping_id, server.server_machine_id, server.server_machine_power, server.server_machine_tdp * get_server_machine_capping_threshold())
+                            capping_detail_id = insert_capping_detail(capping_id, server.server_machine_id, server.server_machine_power, server.server_machine_tdp * get_server_machine_capping_threshold())
+                            # 对服务器采取capping动作，capping的目标值为服务器TDP*75%
+                            capping(server.server_machine_ip, server.server_machine_tdp * get_server_machine_capping_threshold(), capping_detail_id)
+                            
                             # 修改数据库状态，修改列表中的状态
                             total_capping = total_capping - server_capping
                         else:
-                            # 对服务器采取capping动作，capping的目标值为实时功耗-total_capping
-                            capping(server.server_machine_power - total_capping)
                             # 将capping动作插入如数据库
-                            insert_capping_detail(capping_id, server.server_machine_id, server.server_machine_power, server.server_machine_power - total_capping)
+                            capping_detail_id = insert_capping_detail(capping_id, server.server_machine_id, server.server_machine_power, server.server_machine_power - total_capping)
+                            # 对服务器采取capping动作，capping的目标值为实时功耗-total_capping
+                            capping(server.server_machine_ip, server.server_machine_power - total_capping, capping_detail_id)
+                            
                             # 修改数据库状态，修改列表中的状态
                             total_capping = 0
                         # 修改数据库中服务器状态，修改列表中的状态
@@ -148,7 +199,7 @@ def controller_agent(line_server_list):
                 for j in i.server_list:
                     if j.server_machine_state == get_server_machine_state():
                         # 进行uncapping动作
-                        uncapping()
+                        uncapping(j.server_machine_ip)
                         # 修改服务器状态，并修改列表状态
                         j.server_machine_state = get_server_machine_no_state()
                         update_server_machine_state(get_server_machine_no_state(), j.server_machine_id)
