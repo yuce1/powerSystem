@@ -17,33 +17,19 @@
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
--- ----------------------------
--- Table structure for capping
--- ----------------------------
-DROP TABLE IF EXISTS `capping`;
-CREATE TABLE `capping`  (
-  `capping_id` int(10) NOT NULL AUTO_INCREMENT COMMENT 'capping记录id',
-  `capping_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT 'capping名称，信息描述',
-  `total_power` float(6,2) NOT NULL COMMENT '服务器的实时功耗之和',
-  `capping_target` float(6,2) NOT NULL COMMENT 'capping的目标',
-  `capping_type` int(5) NOT NULL COMMENT 'capping状态 0：uncapping 1：capping',
-  `is_del` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '0' COMMENT '是否删除(0:未删除；1:已删除)',
-  `create_date` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间，记录capping动作的时间',
-  PRIMARY KEY (`capping_id`) USING BTREE
-) ENGINE = MyISAM AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 
-DROP TABLE IF EXISTS `capping_detail`;
-CREATE TABLE `capping_detail`  (
-  `capping_detail_id` int(10) NOT NULL AUTO_INCREMENT COMMENT 'capping细节记录id',
-  `capping_id` int(10) NOT NULL  COMMENT 'capping记录id',
-  `capping_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT 'capping名称，信息描述',
+DROP TABLE IF EXISTS `cpu_capping`;
+CREATE TABLE `cpu_capping`  (
+  `cpu_capping_id` int(10) NOT NULL AUTO_INCREMENT COMMENT 'capping细节记录id',
+  `capping_id` int(10) NOT NULL  COMMENT '服务器capping记录id',
+  `cpu_capping_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT 'capping名称，信息描述',
   `cpu_id` int(10) NOT NULL COMMENT '对应cpu的id',
   `cpu_power` float(6,2) NOT NULL COMMENT 'cpu的实时功耗的值',
   `capping_target` float(6,2) NOT NULL COMMENT 'cpu的capping目标',
   `is_del` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '0' COMMENT '是否删除(0:未删除；1:已删除)',
   `create_date` timestamp(0) NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间，记录capping动作的时间',
-  PRIMARY KEY (`capping_detail_id`) USING BTREE
+  PRIMARY KEY (`cpu_capping_id`) USING BTREE
 ) ENGINE = MyISAM AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
